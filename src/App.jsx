@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Collections from "./components/Collections";
+import Categories from "./components/Categories";
 import Contact from "./components/Contact";
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
         <section id="home"><Hero /></section>
         <About />
         <Collections />
+        <Categories />
         <section id="diamond" className="py-16 bg-amber-50">
           <div className="max-w-7xl mx-auto px-6 text-center">
             <h2 className="text-3xl font-extrabold">Diamond Mahotsav</h2>
@@ -26,7 +28,7 @@ function App() {
         </section>
         <Contact />
         <footer className="py-10 text-center text-sm text-gray-600 bg-white border-t">
-          Copyright © 2025 S S Nagarkar Jewellers
+          Copyright © 2025 S S Nagarkar Jewellers | Powered by MTWILIGHT
         </footer>
       </main>
     </div>

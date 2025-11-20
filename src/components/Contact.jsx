@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Phone, Mail, MapPin, MessageCircle } from "lucide-react";
 
 const locations = [
@@ -16,6 +17,37 @@ const locations = [
 ];
 
 export default function Contact() {
+  const [form, setForm] = useState({ name: "", email: "", phone: "", message: "" });
+  const [status, setStatus] = useState({ type: "idle", msg: "" });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((f) => ({ ...f, [name]: value }));
+  };
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setStatus({ type: "loading", msg: "Sending..." });
+    try {
+      const baseUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+      const res = await fetch(`${baseUrl}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email || undefined,
+          phone: form.phone || undefined,
+          message: form.message || undefined,
+        }),
+      });
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      setStatus({ type: "success", msg: "Thank you! We will contact you shortly." });
+      setForm({ name: "", email: "", phone: "", message: "" });
+    } catch (err) {
+      setStatus({ type: "error", msg: "Something went wrong. Please try again or call us directly." });
+    }
+  };
+
   return (
     <section id="contact" className="py-20 bg-amber-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -43,12 +75,19 @@ export default function Contact() {
           <div className="bg-white rounded-2xl p-6 border border-amber-100">
             <h3 className="font-bold text-gray-900 text-lg">Schedule a Video Call</h3>
             <p className="text-sm text-gray-600 mb-4">Fill the form and we will reach out shortly.</p>
-            <form className="grid gap-4">
-              <input className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Your Name" />
-              <input className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Email" />
-              <input className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Phone" />
-              <textarea className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" rows="4" placeholder="Message"></textarea>
-              <button type="button" className="rounded-lg px-5 py-2 bg-amber-600 text-white font-semibold hover:bg-amber-700">Send</button>
+            <form className="grid gap-4" onSubmit={submit}>
+              <input name="name" value={form.name} onChange={handleChange} required className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Your Name" />
+              <input name="email" value={form.email} onChange={handleChange} className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Email" />
+              <input name="phone" value={form.phone} onChange={handleChange} className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" placeholder="Phone" />
+              <textarea name="message" value={form.message} onChange={handleChange} className="w-full rounded-lg border border-amber-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-amber-400" rows="4" placeholder="Message"></textarea>
+              <button type="submit" disabled={status.type === "loading"} className="rounded-lg px-5 py-2 bg-amber-600 text-white font-semibold hover:bg-amber-700 disabled:opacity-60">
+                {status.type === "loading" ? "Sending..." : "Send"}
+              </button>
+              {status.type !== "idle" && (
+                <p className={`${status.type === "success" ? "text-green-700" : status.type === "error" ? "text-red-700" : "text-gray-600"} text-sm`}>
+                  {status.msg}
+                </p>
+              )}
             </form>
           </div>
         </div>
